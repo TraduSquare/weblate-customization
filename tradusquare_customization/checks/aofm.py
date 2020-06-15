@@ -19,25 +19,43 @@
 # SOFTWARE.
 """Weblate checks for 'Attack of the Friday Monsters' game."""
 
-from weblate.checks.base import TargetCheck
 import re
 
-XML_MATCH = re.compile(r'<[^>]+>')
+from django.utils.translation import ugettext_lazy as _
+from weblate.checks.base import TargetCheck
+
+XML_MATCH = re.compile(r"<[^>]+>")
+
 
 class AofmKeywordCheck(TargetCheck):
-    check_id = 'game-aofm'
-    name = 'AoFM keywords'
-    description = 'AoFM keywords are missing'
+    """
+    Custom checks for the Attack of the Friday Monster translation.
+
+    Adds a new check for the control codes enclosed by '<' and '>'. They are
+    not XML as there isn't a closing equivalent. The check only ensures that
+    the texts contain "<end>".
+
+    It also adds highlighting.
+    """
+
+    check_id = "game-aofm"
+    name = _("AoFM keywords")
+    description = _("AoFM keywords are missing")
     default_disabled = True
 
     def check_highlight(self, source, unit):
+        """Highlight the control codes enclosed by the angles."""
         if self.should_skip(unit):
             return []
-        return [(match.start(), match.end(), match.group()) for match in XML_MATCH.finditer(source)]
+        return [
+            (match.start(), match.end(), match.group())
+            for match in XML_MATCH.finditer(source)
+        ]
 
     # Real check code
     def check_single(self, source, target, unit):
+        """Validate that the text contains the end control code."""
         if self.should_skip(unit):
             return False
 
-        return '<end>' not in target
+        return "<end>" not in target

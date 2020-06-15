@@ -1,1 +1,1 @@
-""""Custom checks for TraduSquare translation projects."""
+"""Custom checks for TraduSquare translation projects."""

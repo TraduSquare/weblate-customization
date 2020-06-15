@@ -19,20 +19,32 @@
 # SOFTWARE.
 """Weblate format for brace control code styles."""
 
-from django.utils.translation import ugettext_lazy as _
-from weblate.checks.base import TargetCheck
 import re
 
-BRACE_MATCH = re.compile(r'{[^}]+}')
+from django.utils.translation import ugettext_lazy as _
+from weblate.checks.base import TargetCheck
+
+BRACE_MATCH = re.compile(r"{[^}]+}")
+
 
 class BraceCheck(TargetCheck):
-    check_id = 'brace-format'
-    name = _('Mismatched brace control codes')
-    description = _('Brace control codes in translation does not match source')
-    severity = 'warning'
+    """
+    Custom checks for control codes enclosed in braces.
+
+    Validates that the translation has the same control codes
+    as the original text. The expected format uses braces: {CONTROL_CODE}
+
+    It also adds highlighting.
+    """
+
+    check_id = "brace-format"
+    name = _("Mismatched brace control codes")
+    description = _("Brace control codes in translation does not match source")
+    severity = "warning"
     default_disabled = True
 
     def check_highlight(self, source, unit):
+        """Highlight the braces and its content."""
         if self.should_skip(unit):
             return []
         ret = []
@@ -41,6 +53,7 @@ class BraceCheck(TargetCheck):
         return ret
 
     def check_single(self, source, target, unit):
+        """Validate that the same control codes are in the translated text."""
         src_match = BRACE_MATCH.findall(source)
         if not src_match:
             return False
