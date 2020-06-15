@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 #
-# Copyright © 2012 - 2019 Michal Čihař <michal@cihar.com>
+# Copyright © 2020 TraduSquare
 #
-# This file is part of Weblate <https://weblate.org/>
+# Customization package information.
 #
-"""Setup script for customization demo."""
+"""Setup script for TraduSquare customization package."""
 
 from setuptools import setup
 
 setup(
-    name="weblate_customization",
+    name="tradusquare_customization",
     version="0.1",
-    packages=["weblate_customization"],
+    packages=["tradusquare_customization"],
     include_package_data=True,
     license="MIT",
-    description="Weblate customization example",
-    long_description="Weblate customization example",
-    keywords="i18n l10n gettext git mercurial translate",
-    url="https://weblate.org/",
-    author="Michal Čihař",
-    author_email="michal@cihar.com",
+    description="TraduSquare customization for Weblate",
+    long_description="TraduSquare customization for Weblate",
+    keywords="tradusquare i18n l10n gettext git mercurial translate",
+    url="https://tradusquare.es/",
+    author="TraduSquare",
+    author_email="tradusquare@gmail.com",
     install_requires=["Weblate"],
     zip_safe=False,
     classifiers=[
@@ -32,8 +32,7 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Internationalization",
         "Topic :: Software Development :: Localization",
         "Topic :: Internet :: WWW/HTTP",

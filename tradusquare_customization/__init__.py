@@ -1,0 +1,1 @@
+"""TraduSquare customization for Weblate."""

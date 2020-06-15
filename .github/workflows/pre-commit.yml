@@ -1,4 +1,4 @@
-# This file is maintained in https://github.com/WeblateOrg/meta/
+# This file was copied from https://github.com/WeblateOrg/customize-example
 name: Pre-commit check
 
 on:
