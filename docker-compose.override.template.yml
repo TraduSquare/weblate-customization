@@ -1,0 +1,60 @@
+version: '3'
+services:
+  weblate:
+    environment:
+      WEBLATE_DEBUG: 0
+      WEBLATE_ADMIN_NAME: <NAME OF THE ADMIN USER IN WEBLATE>
+      WEBLATE_ADMIN_EMAIL: <REAL OR FAKE EMAIL FOR THE ADMIN USER IN WEBLATE>
+      # If you remove the next line, weblate will random generate one password and print to the log
+      WEBLATE_ADMIN_PASSWORD: <THE PASSWORD OF THE ADMIN USER IN WEBLATE>
+      WEBLATE_SERVER_EMAIL: <REAL OR FAKE EMAIL USED BY WEBLATE TO COMMIT AND SEND EMAILS>
+      WEBLATE_DEFAULT_FROM_EMAIL: <SAME AS WEBLATE_SERVER_EMAIL>
+      WEBLATE_TIMEZONE: Europe/Madrid
+      WEBLATE_ALLOWED_HOSTS: <COMMA-SEPARATED LIST OF THE SERVER IPs OR DOMAINS>
+      WEBLATE_SITE_TITLE: <SERVER WEB TITLE>
+      WEBLATE_REQUIRE_LOGIN: 1
+      LC_ALL: C
+
+      # [Optional] Configure email server like sendgrid so weblate can send
+      # registration emails, alerts and more.
+      WEBLATE_EMAIL_HOST: <EMAIL HOST SERVER>
+      WEBLATE_EMAIL_USE_TLS: 1
+      WEBLATE_EMAIL_PORT: <EMAIL HOST SERVER PORT>
+      WEBLATE_EMAIL_HOST_USER: <EMAIL HOST USER>
+      WEBLATE_EMAIL_HOST_PASSWORD: <EMAIL HOST PASSWORD>
+      # If the previous email config is not set, then uncomment this line
+      # WEBLATE_EMAIL_BACKEND: django.core.mail.backends.dummy.EmailBackend
+
+      # [Optional] Configure rollbar to recieve an email when weblate has an internal failure
+      ROLLBAR_KEY: <ROLLBAR TOKEN>
+
+      # [Optional] Only if you have setup emails.
+      # Otherwise set to 0 and create the users manually via admin user
+      WEBLATE_REGISTRATION_OPEN: 1
+
+      # Ignore known warnings from Weblate server
+      # weblate.I028 is to configure backups but we do manuals which include more things
+      # security.W005 is SECURE_HSTS_INCLUDE_SUBDOMAINS which is set by Weblate to False for now (fixed after 4.1.1)
+      WEBLATE_SILENCED_SYSTEM_CHECKS: security.W005,weblate.I028
+
+      # [Optional] Only if the server runs with HTTPS, otherwise remove or set to 0
+      WEBLATE_ENABLE_HTTPS: 1
+
+      # [Optional] Remove unwanted default checks and autofixes
+      # - NewLineCountCheck: gives warning if the translated has more or less lines than the original text
+      WEBLATE_REMOVE_CHECK: weblate.checks.chars.NewLineCountCheck
+      WEBLATE_REMOVE_AUTOFIX: weblate.trans.autofixes.whitespace.SameBookendingWhitespace,weblate.trans.autofixes.chars.ReplaceTrailingDotsWithEllipsis,weblate.trans.autofixes.chars.RemoveZeroSpace
+
+      # [Optional] Customize the server with logos and custom checks
+      # Clone the git repo https://github.com/TraduSquare/weblate-customization
+      # under this folder with name "tradusquare_customization"
+      # For other teams: change at least the "setup.py" and folder names.
+      WEBLATE_ADD_APPS: tradusquare_customization
+      WEBLATE_ADD_CHECK: tradusquare_customization.checks.aofm.AofmKeywordCheck,tradusquare_customization.checks.braces.BraceCheck
+    volumes:
+      - ./tradusquare_customization/tradusquare_customization:/app/data/python/tradusquare_customization
+
+  # Only if you enable HTTPS
+  https-portal:
+    environment:
+      DOMAINS: '<SERVER DOMAIN> -> http://weblate:8080'
