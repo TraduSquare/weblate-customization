@@ -1,5 +1,8 @@
 version: '3'
 services:
+  ports:
+    # Only if HTTPS is not setup. You can choose other port than 80.
+    - 80:8080
   weblate:
     environment:
       WEBLATE_DEBUG: 0
