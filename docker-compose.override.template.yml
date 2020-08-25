@@ -1,9 +1,9 @@
 version: '3'
 services:
-  ports:
-    # Only if HTTPS is not setup. You can choose other port than 80.
-    - 80:8080
   weblate:
+    ports:
+      # Only if HTTPS is not setup. You can choose other port than 80.
+      - 80:8080
     environment:
       WEBLATE_DEBUG: 0
       WEBLATE_ADMIN_NAME: <NAME OF THE ADMIN USER IN WEBLATE>
@@ -13,6 +13,7 @@ services:
       WEBLATE_SERVER_EMAIL: <REAL OR FAKE EMAIL USED BY WEBLATE TO COMMIT AND SEND EMAILS>
       WEBLATE_DEFAULT_FROM_EMAIL: <SAME AS WEBLATE_SERVER_EMAIL>
       WEBLATE_TIMEZONE: Europe/Madrid
+      WEBLATE_SITE_DOMAIN: <SERVER WEB DOMAIN OR IP>
       WEBLATE_ALLOWED_HOSTS: <COMMA-SEPARATED LIST OF THE SERVER IPs OR DOMAINS>
       WEBLATE_SITE_TITLE: <SERVER WEB TITLE>
       WEBLATE_REQUIRE_LOGIN: 1
