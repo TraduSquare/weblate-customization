@@ -24,7 +24,7 @@ import re
 from django.utils.translation import ugettext_lazy as _
 from weblate.checks.base import TargetCheck
 
-XML_MATCH = re.compile(r"(?:\^[0-9])|(?:\/(?:%)+?$)|(?:\\[A-Za-z]{1,2}(?:[0-9]+)?)|(?:\[~[0-9]\])|(?:~[0-9])|(?:\/|%$)|(?:\\cY)|(?:\\cW)|(?:#)")
+JSON_MATCH = re.compile(r"(?:\^[0-9])|(?:\/(?:%)+?$)|(?:\\[A-Za-z]{1,2}(?:[0-9]+)?)|(?:\[~[0-9]\])|(?:~[0-9])|(?:\/|%$)|(?:\\cY)|(?:\\cW)|(?:#)")
 
 
 class DeltaKeywordCheck(TargetCheck):
@@ -47,11 +47,14 @@ class DeltaKeywordCheck(TargetCheck):
             return []
         return [
             (match.start(), match.end(), match.group())
-            for match in XML_MATCH.finditer(source)
+            for match in JSON_MATCH.finditer(source)
         ]
 
     # Real check code
     def check_single(self, source, target, unit):
-        """Validate that the text contains the end control code."""
-        if self.should_skip(unit):
-            return False
+        """Validate that the text contains the control code."""
+        src_match = JSON_MATCH.findall(source) 
+        tar_match = JSON_MATCH.findall(target)
+        if (len(src_match) != len(tar_match)):
+            return True
+        return False
