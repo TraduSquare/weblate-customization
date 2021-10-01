@@ -9,14 +9,14 @@
 from setuptools import setup
 
 setup(
-    name="tradusquare_customization",
+    name="tradusquare_weblate",
     version="0.1",
-    packages=["tradusquare_customization"],
+    packages=["tradusquare_weblate"],
     include_package_data=True,
     license="MIT",
     description="TraduSquare customization for Weblate",
     long_description="TraduSquare customization for Weblate",
-    keywords="tradusquare i18n l10n gettext git mercurial translate",
+    keywords="tradusquare i18n l10n translate",
     url="https://tradusquare.es/",
     author="TraduSquare",
     author_email="tradusquare@gmail.com",
