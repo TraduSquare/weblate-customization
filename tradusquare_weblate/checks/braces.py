@@ -21,7 +21,7 @@
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext as _
 from weblate.checks.base import TargetCheck
 
 BRACE_MATCH = re.compile(r"{[^}]+}")

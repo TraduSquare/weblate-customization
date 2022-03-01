@@ -21,7 +21,7 @@
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext as _
 from weblate.checks.base import TargetCheck
 
 JSON_MATCH = re.compile(r"(?:\^[0-9])|(?:\/(?:%)+?$)|(?:\\[A-Za-z]{1,2}(?:[0-9]+)?)|(?:\[~[0-9]\])|(?:~[0-9])|(?:\/|%$)|(?:\\cY)|(?:\\cW)|(?:#)")
