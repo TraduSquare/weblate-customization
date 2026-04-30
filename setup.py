@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name="tradusquare_weblate",
-    version="0.1",
+    version="0.2",
     packages=["tradusquare_weblate"],
     include_package_data=True,
     license="MIT",
