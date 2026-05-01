@@ -14,7 +14,6 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext, gettext_lazy
 
 from weblate.checks.base import TargetCheckParametrized
-from weblate.checks.flags import TYPED_FLAGS, TYPED_FLAGS_ARGS
 from weblate.checks.parser import multi_value_flag
 from tradusquare_weblate.checks.font_utils import check_render_size, RenderingTextbox
 
@@ -26,8 +25,28 @@ IMAGE = (
     '<a href="{0}" class="thumbnail img-check"><img class="img-fluid" src="{0}" /></a>'
 )
 
-TYPED_FLAGS["textbox"] = gettext_lazy("Rendering textbox")
-TYPED_FLAGS_ARGS["textbox"] = multi_value_flag(str, 3)
+
+class TextboxFlagCheck(TargetCheckParametrized):
+    check_id = "textbox"
+    name = gettext_lazy("Rendering textbox")
+    description = gettext_lazy("Define the textbox dimensions for rendering")
+    default_disabled = True
+
+    @property
+    def param_type(self):
+        def parse_values(val):
+            if len(val) != 3:
+                msg = "Missing required parameter"
+                raise ValueError(msg)
+            return [val[0], int(val[1]), int(val[2])]
+
+        return parse_values
+
+    def check_target_params(
+        self, sources: list[str], targets: list[str], unit: Unit, value
+    ):
+        return False
+
 
 class MaxSizeCheck(TargetCheckParametrized):
     """Check for maximum size of rendered text."""

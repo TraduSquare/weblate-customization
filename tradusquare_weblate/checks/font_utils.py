@@ -19,9 +19,9 @@ from PIL import ImageFont, Image
 
 from weblate.screenshots.fields import ScreenshotField
 from weblate.utils.data import data_path
-from weblate.utils.files import read_file_bytes
 from weblate.utils.hash import calculate_hash
 from weblate.utils.icons import find_static_file
+from weblate.fonts.utils import configure_fontconfig
 
 gi.require_version("PangoCairo", "1.0")
 gi.require_version("Pango", "1.0")
@@ -43,64 +43,6 @@ class RenderingTextbox(NamedTuple):
     x: int
     y: int
 
-
-FONTCONFIG_CONFIG = """<?xml version="1.0"?>
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<fontconfig>
-    <cachedir>{}</cachedir>
-    <dir>{}</dir>
-    <dir>{}</dir>
-    <dir>{}</dir>
-    <config>
-        <rescan>
-            <int>30</int>
-        </rescan>
-    </config>
-
-    <alias>
-        <family>sans-serif</family>
-        <prefer>
-            <family>Source Sans 3</family>
-            <family>Kurinto Sans</family>
-        </prefer>
-    </alias>
-
-    <alias>
-        <family>Source Sans 3</family>
-        <default><family>sans-serif</family></default>
-    </alias>
-
-    <alias>
-        <family>Kurinto Sans</family>
-        <default><family>sans-serif</family></default>
-    </alias>
-
-    <!--
-     Synthetic emboldening for fonts that do not have bold face available
-    -->
-    <match target="font">
-        <test name="weight" compare="less_eq">
-            <const>medium</const>
-        </test>
-        <test target="pattern" name="weight" compare="more_eq">
-            <const>bold</const>
-        </test>
-        <edit name="embolden" mode="assign">
-            <bool>true</bool>
-        </edit>
-        <edit name="weight" mode="assign">
-            <const>bold</const>
-        </edit>
-    </match>
-    <!--
-      Enable slight hinting for better sub-pixel rendering
-    -->
-    <match target="pattern">
-      <edit name="hintstyle" mode="append"><const>hintslight</const></edit>
-    </match>
-</fontconfig>
-"""
-
 FONT_WEIGHTS = {
     "normal": Pango.Weight.NORMAL,
     "light": Pango.Weight.LIGHT,
@@ -114,35 +56,6 @@ WRAP_MODES = {
     "char": Pango.WrapMode.CHAR,
     "": Pango.WrapMode.WORD,
 }
-
-
-@cache
-def configure_fontconfig() -> None:
-    """Configure fontconfig to use custom configuration."""
-    fonts_dir = data_path("fonts")
-    cache_dir = data_path("cache") / "fonts"
-    fonts_dir.mkdir(parents=True, exist_ok=True)
-    config_file = fonts_dir / "fonts.conf"
-
-    # Generate the configuration
-    config_file.write_text(
-        FONTCONFIG_CONFIG.format(
-            cache_dir.as_posix(),
-            fonts_dir.as_posix(),
-            os.path.dirname(
-                find_static_file(
-                    "weblate_fonts/source-sans/ttf/SourceSans3-Regular.ttf"
-                )
-            ),
-            os.path.dirname(
-                find_static_file("weblate_fonts/kurinto/ttf/KurintoSans-Rg.ttf")
-            ),
-        )
-    )
-
-    # Inject into environment
-    os.environ["FONTCONFIG_FILE"] = config_file.as_posix()
-
 
 def get_font_weight(weight: str) -> Pango.Weight | None:
     return FONT_WEIGHTS[weight]
@@ -192,10 +105,12 @@ def _render_size(
 
     while True:
         # Setup Pango/Cairo
-        if background:
+        if background is not None:
             background.open(mode='rb')
             surface = cairo.ImageSurface.create_from_png(background)
         else:
+            textbox_x = 0
+            textbox_y = 0
             surface = cairo.ImageSurface(cairo.FORMAT_RGB24, surface_width, surface_height)
         context = cairo.Context(surface)
 
@@ -230,7 +145,7 @@ def _render_size(
         surface_width = required_width
 
     if needs_output:
-        if not background:
+        if background is None:
             # Render gray background
             # This matches .img-check CSS style
             context.save()
@@ -306,7 +221,7 @@ def render_size(
     surface_width: int | None = None,
     use_cache: bool = True,
     background: ScreenshotField | None = None,
-    textbox: RenderingTextbox
+    textbox: RenderingTextbox = RenderingTextbox('', 0, 0)
 ) -> tuple[Dimensions, int]:
     render_cache_key = f"render:{calculate_hash(text)}:{calculate_hash(font)}:{int(weight) if weight is not None else ''}:{size}:{spacing}:{width}:{lines}:{cache_key}:{surface_height}:{surface_width}"
     if use_cache:
@@ -364,10 +279,3 @@ def check_render_size(
         textbox=textbox
     )
     return rendered_size.width <= width and actual_lines <= lines
-
-
-def get_font_name(filelike: FieldFile | File) -> tuple[str, str]:
-    """Return tuple of font family and style, for example ('Ubuntu', 'Regular')."""
-    # Parse fonts from in-memory bytes so Pillow does not keep the original
-    # file descriptor alive after validation.
-    return ImageFont.truetype(BytesIO(read_file_bytes(filelike))).getname()
