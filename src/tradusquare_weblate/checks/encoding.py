@@ -18,14 +18,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from typing import TYPE_CHECKING
+from codecs import register_error
 
 from django.utils.translation import gettext_lazy
 
 from weblate.checks.base import TargetCheckParametrized
+from weblate.checks.parser import multi_value_flag
 
 if TYPE_CHECKING:
     from weblate.trans.models import Unit
 
+REGISTERED_ERROR_HANDLERS: list[str] = []
 
 class MaxEncodedLengthCheck(TargetCheckParametrized):
     """Check for maximum encoded length of translation."""
@@ -39,13 +42,7 @@ class MaxEncodedLengthCheck(TargetCheckParametrized):
 
     @property
     def param_type(self):
-        def parse_values(val):
-            if len(val) != 2:
-                msg = "Missing required parameter"
-                raise ValueError(msg)
-            return [val[0], int(val[1])]
-
-        return parse_values
+        return multi_value_flag(str, 2, 3)
 
     def check_target_params(
         self, sources: list[str], targets: list[str], unit: Unit, value
@@ -54,8 +51,13 @@ class MaxEncodedLengthCheck(TargetCheckParametrized):
         enc_name = value[0]
         max_length = int(value[1])
 
+        error_handler = 'replace'
+        if len(value) == 3:
+            replace_char = value[2]
+            error_handler = f"ts-replace-{replace_char}"
+            if error_handler not in REGISTERED_ERROR_HANDLERS:
+                register_error(error_handler, lambda e : (replace_char, e.end))
+                REGISTERED_ERROR_HANDLERS.append(error_handler)
+
         replace = self.get_replacement_function(unit)
-        try:
-            return any(len(replace(target).encode(enc_name)) > max_length for target in targets)
-        except UnicodeEncodeError:
-            return False
+        return any(len(replace(target).encode(enc_name, error_handler)) > max_length for target in targets)
