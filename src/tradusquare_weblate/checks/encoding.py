@@ -55,5 +55,7 @@ class MaxEncodedLengthCheck(TargetCheckParametrized):
         max_length = int(value[1])
 
         replace = self.get_replacement_function(unit)
-        print(f"running max-encoded on {targets} with {enc_name} for {max_length}")
-        return any(len(replace(target).encode(enc_name)) > max_length for target in targets)
+        try:
+            return any(len(replace(target).encode(enc_name)) > max_length for target in targets)
+        except UnicodeEncodeError:
+            return False
