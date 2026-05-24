@@ -143,11 +143,16 @@ class MaxSizeCheck(TargetCheckParametrized):
             return content
 
         flags = unit.all_flags
-        if not flags.has_value("replacements-regex"):
+        replacements = []
+        if flags.has_value("replacements"):
+            replacements += flags.get_value("replacements")
+        if flags.has_value("replacements-regex"):
+            replacements += flags.get_value("replacements-regex")
+
+        if len(replacements) == 0:
             return noop
 
         # Parse the flag as key-values
-        replacements = flags.get_value("replacements-regex")
         replacements = dict(
             replacements[pos: pos + 2] for pos in range(0, len(replacements), 2)
         )
