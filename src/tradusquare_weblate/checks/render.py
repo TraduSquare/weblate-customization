@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import re
+
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
@@ -41,6 +43,22 @@ class TextboxFlagCheck(TargetCheckParametrized):
             return [val[0], int(val[1]), int(val[2])]
 
         return parse_values
+
+    def check_target_params(
+        self, sources: list[str], targets: list[str], unit: Unit, value
+    ):
+        return False
+
+
+class ReplacementsRegexCheck(TargetCheckParametrized):
+    check_id = "replacements-regex"
+    name = gettext_lazy("Extended replacements")
+    description = gettext_lazy("Define text replacements with regular expressions")
+    default_disabled = True
+
+    @property
+    def param_type(self):
+        return multi_value_flag(lambda x: x, modulo=2)
 
     def check_target_params(
         self, sources: list[str], targets: list[str], unit: Unit, value
@@ -97,7 +115,7 @@ class MaxSizeCheck(TargetCheckParametrized):
         font = self.last_font = self.load_font(
             unit.translation.component.project, unit.translation.language, font_group
         )
-        replace = self.get_replacement_function(unit)
+        replace = self.get_extended_replacement_function(unit)
         screenshot = unit.screenshots.first()
         background = screenshot.image if screenshot is not None else None
 
@@ -118,6 +136,34 @@ class MaxSizeCheck(TargetCheckParametrized):
                 for i, target in enumerate(targets)
             )
         )
+
+    @staticmethod
+    def get_extended_replacement_function(unit: Unit):
+        def noop(content: str) -> str:
+            return content
+
+        flags = unit.all_flags
+        if not flags.has_value("replacements-regex"):
+            return noop
+
+        # Parse the flag as key-values
+        replacements = flags.get_value("replacements-regex")
+        replacements = dict(
+            replacements[pos: pos + 2] for pos in range(0, len(replacements), 2)
+        )
+
+        # For each key (regex or string) and value (replacement) change the text
+        # It follows the order of appearance, so be careful not matching a
+        # replacement with the follow-up expression.
+        def regexp_replacement(text: str) -> str:
+            for expr, replaced in replacements.items():
+                if isinstance(expr, re.Pattern):
+                    text = expr.sub(replaced, text)
+                else:
+                    text = text.replace(expr, replaced)
+            return text
+
+        return regexp_replacement
 
     def get_description(self, check_obj):
         url = reverse(
