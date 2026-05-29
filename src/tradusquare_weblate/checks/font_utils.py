@@ -275,6 +275,10 @@ def check_render_size(
         width=width,
         lines=lines,
         cache_key=cache_key,
+        # current cache keys has a bug when changing a text back and forward (check up-to-date but image isn't)
+        # this is because the image cache key depends on a per unit content (id + flags) so translation is not affected
+        # but check result cache key is unique (includes text).
+        use_cache=False,
         background=background,
         textbox=textbox
     )
