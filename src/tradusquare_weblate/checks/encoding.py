@@ -17,7 +17,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Callable
 from codecs import register_error
 
 from django.utils.translation import gettext_lazy
@@ -41,12 +41,12 @@ class MaxEncodedLengthCheck(TargetCheckParametrized):
     default_disabled = True
 
     @property
-    def param_type(self):
+    def param_type(self) -> Callable[[tuple[str, ...]], Any] | None:
         return multi_value_flag(str, 2, 3)
 
     def check_target_params(
-        self, sources: list[str], targets: list[str], unit: Unit, value
-    ):
+        self, sources: list[str], targets: list[str], unit: Unit, value: Any
+    ) -> bool:
         # from: https://docs.python.org/3/library/codecs.html#standard-encodings
         enc_name = value[0]
         max_length = int(value[1])

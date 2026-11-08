@@ -7,3 +7,10 @@ For more information check the Weblate documentation:
 
 - [Customize](https://docs.weblate.org/en/latest/admin/customize.html)
 - [Customize with Docker](https://docs.weblate.org/en/latest/admin/install/docker.html#further-configuration-customization)
+
+## Restoring dependencies
+
+1. Create a virtual environment
+2. Restore dependencies
+   - In Windows `borgbackup` fails to build, use
+     `uv sync --no-install--package borgbackup`

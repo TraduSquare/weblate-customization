@@ -18,11 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Weblate checks for 'Attack of the Friday Monsters' game."""
+from typing import TYPE_CHECKING
 
 import re
 
 from django.utils.translation import gettext as _
-from weblate.checks.base import TargetCheck
+from weblate.checks.base import TargetCheck, Highlight
+from weblate.trans.models import Unit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 XML_MATCH = re.compile(r"<[^>]+>")
 
@@ -43,17 +48,16 @@ class AofmKeywordCheck(TargetCheck):
     description = _("AoFM keywords are missing")
     default_disabled = True
 
-    def check_highlight(self, source, unit):
+    def check_highlight(self, source: str, unit: Unit) -> Iterable[Highlight]:
         """Highlight the control codes enclosed by the angles."""
         if self.should_skip(unit):
             return []
-        return [
-            (match.start(), match.end(), match.group())
+        return [Highlight(match.start(), match.end(), match.group())
             for match in XML_MATCH.finditer(source)
         ]
 
     # Real check code
-    def check_single(self, source, target, unit):
+    def check_single(self, source: str, target: str, unit: Unit) -> bool:
         """Validate that the text contains the end control code."""
         if self.should_skip(unit):
             return False

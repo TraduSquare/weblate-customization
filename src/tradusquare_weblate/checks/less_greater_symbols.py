@@ -17,19 +17,24 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Weblate format for control code styles that utilizes the less than and greather than symbols."""
+"""Weblate format for control code styles that utilizes the less than and greater than symbols."""
+from typing import TYPE_CHECKING
 
 import re
 
 from django.utils.translation import gettext as _
-from weblate.checks.base import TargetCheck
+from weblate.checks.base import TargetCheck, Highlight
+from weblate.trans.models import Unit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 REGEX_MATCH = re.compile(r"<[^>]+>")
 
 
 class LessGreaterCheck(TargetCheck):
     """
-    Custom checks for control codes enclosed in less than and greather than symbols.
+    Custom checks for control codes enclosed in less than and greater than symbols.
 
     Validates that the translation has the same control codes
     as the original text. The expected format: <CONTROL_CODE>
@@ -43,16 +48,16 @@ class LessGreaterCheck(TargetCheck):
     severity = "warning"
     default_disabled = True
 
-    def check_highlight(self, source, unit):
-        """Highlight the less than and greather than symbols and its content."""
+    def check_highlight(self, source: str, unit: Unit) -> Iterable[Highlight]:
+        """Highlight the less than and greater than symbols and its content."""
         if self.should_skip(unit):
             return []
         ret = []
         for match in REGEX_MATCH.finditer(source):
-            ret.append((match.start(), match.end(), match.group()))
+            ret.append(Highlight(match.start(), match.end(), match.group()))
         return ret
 
-    def check_single(self, source, target, unit):
+    def check_single(self, source: str, target: str, unit: Unit) -> bool:
         """Validate that the same control codes are in the translated text."""
         src_match = REGEX_MATCH.findall(source)
         if not src_match:

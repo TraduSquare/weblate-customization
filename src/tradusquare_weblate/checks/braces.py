@@ -18,11 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Weblate format for brace control code styles."""
+from typing import TYPE_CHECKING
 
 import re
 
 from django.utils.translation import gettext as _
-from weblate.checks.base import TargetCheck
+from weblate.checks.base import TargetCheck, Highlight
+from weblate.trans.models import Unit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 BRACE_MATCH = re.compile(r"{[^}]+}")
 
@@ -43,16 +48,16 @@ class BraceCheck(TargetCheck):
     severity = "warning"
     default_disabled = True
 
-    def check_highlight(self, source, unit):
+    def check_highlight(self, source: str, unit: Unit) -> Iterable[Highlight]:
         """Highlight the braces and its content."""
         if self.should_skip(unit):
             return []
         ret = []
         for match in BRACE_MATCH.finditer(source):
-            ret.append((match.start(), match.end(), match.group()))
+            ret.append(Highlight(match.start(), match.end(), match.group()))
         return ret
 
-    def check_single(self, source, target, unit):
+    def check_single(self, source: str, target: str, unit: Unit) -> bool:
         """Validate that the same control codes are in the translated text."""
         src_match = BRACE_MATCH.findall(source)
         if not src_match:
