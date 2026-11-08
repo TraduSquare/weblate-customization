@@ -1,4 +1,4 @@
-#   Copyright 2023 Maxwell Ruiz 
+#   Copyright 2023 Maxwell Ruiz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Weblate format for control code styles that utilizes the less than and greater than symbols."""
+
 from typing import TYPE_CHECKING
 
 import re

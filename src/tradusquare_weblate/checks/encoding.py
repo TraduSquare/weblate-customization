@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
 REGISTERED_ERROR_HANDLERS: list[str] = []
 
+
 class MaxEncodedLengthCheck(TargetCheckParametrized):
     """Check for maximum encoded length of translation."""
 
@@ -51,13 +52,16 @@ class MaxEncodedLengthCheck(TargetCheckParametrized):
         enc_name = value[0]
         max_length = int(value[1])
 
-        error_handler = 'replace'
+        error_handler = "replace"
         if len(value) == 3:
             replace_char = value[2]
             error_handler = f"ts-replace-{replace_char}"
             if error_handler not in REGISTERED_ERROR_HANDLERS:
-                register_error(error_handler, lambda e : (replace_char, e.end))
+                register_error(error_handler, lambda e: (replace_char, e.end))
                 REGISTERED_ERROR_HANDLERS.append(error_handler)
 
         replace = self.get_replacement_function(unit)
-        return any(len(replace(target).encode(enc_name, error_handler)) > max_length for target in targets)
+        return any(
+            len(replace(target).encode(enc_name, error_handler)) > max_length
+            for target in targets
+        )

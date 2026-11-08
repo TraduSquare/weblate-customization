@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Weblate format for brace control code styles."""
+
 from typing import TYPE_CHECKING
 
 import re

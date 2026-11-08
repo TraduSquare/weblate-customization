@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Weblate checks for 'Attack of the Friday Monsters' game."""
+
 from typing import TYPE_CHECKING
 
 import re
@@ -52,7 +53,8 @@ class AofmKeywordCheck(TargetCheck):
         """Highlight the control codes enclosed by the angles."""
         if self.should_skip(unit):
             return []
-        return [Highlight(match.start(), match.end(), match.group())
+        return [
+            Highlight(match.start(), match.end(), match.group())
             for match in XML_MATCH.finditer(source)
         ]
 

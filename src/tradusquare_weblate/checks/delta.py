@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Weblate checks for 'Deltarune' game."""
+
 from typing import TYPE_CHECKING
 
 import re
@@ -29,7 +30,9 @@ from weblate.trans.models import Unit
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-JSON_MATCH = re.compile(r"(?:\^[0-9])|(?:\/(?:%)+?$)|(?:\\[A-Za-z]{1,2}(?:[0-9]+)?)|(?:\[~[0-9]\])|(?:~[0-9])|(?:\/|%$)|(?:\\cY)|(?:\\cW)|(?:#)")
+JSON_MATCH = re.compile(
+    r"(?:\^[0-9])|(?:\/(?:%)+?$)|(?:\\[A-Za-z]{1,2}(?:[0-9]+)?)|(?:\[~[0-9]\])|(?:~[0-9])|(?:\/|%$)|(?:\\cY)|(?:\\cW)|(?:#)"
+)
 
 
 class DeltaKeywordCheck(TargetCheck):
@@ -58,8 +61,8 @@ class DeltaKeywordCheck(TargetCheck):
     # Real check code
     def check_single(self, source: str, target: str, unit: Unit) -> bool:
         """Validate that the text contains the control code."""
-        src_match = JSON_MATCH.findall(source) 
+        src_match = JSON_MATCH.findall(source)
         tar_match = JSON_MATCH.findall(target)
-        if (len(src_match) != len(tar_match)):
+        if len(src_match) != len(tar_match):
             return True
         return False
