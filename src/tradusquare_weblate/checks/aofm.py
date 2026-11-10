@@ -25,10 +25,10 @@ import re
 
 from django.utils.translation import gettext as _
 from weblate.checks.base import TargetCheck, Highlight
-from weblate.trans.models import Unit
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from weblate.trans.models import Unit
 
 XML_MATCH = re.compile(r"<[^>]+>")
 
